@@ -73,7 +73,7 @@ class OrderItem(db.Model):
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    return db.session.get(User, int(user_id))
 
 
 # ======================== Decorators ========================
@@ -139,7 +139,7 @@ def shop():
 
 @app.route("/product/<int:product_id>")
 def product_details(product_id):
-    product = Product.query.get_or_404(product_id)
+    product = db.get_or_404(Product, product_id)
     related = Product.query.filter_by(category=product.category).filter(Product.id != product.id).limit(4).all()
     return render_template("product_details.html", product=product, related=related)
 
@@ -206,7 +206,7 @@ def logout():
 @app.route("/add-to-cart/<int:product_id>", methods=["POST"])
 @login_required
 def add_to_cart(product_id):
-    product = Product.query.get_or_404(product_id)
+    product = db.get_or_404(Product, product_id)
     existing = CartItem.query.filter_by(user_id=current_user.id, product_id=product_id).first()
 
     if existing:
@@ -238,7 +238,7 @@ def cart():
 @app.route("/update-cart/<int:item_id>", methods=["POST"])
 @login_required
 def update_cart(item_id):
-    item = CartItem.query.get_or_404(item_id)
+    item = db.get_or_404(CartItem, item_id)
     if item.user_id != current_user.id:
         flash("Unauthorized", "danger")
         return redirect(url_for('cart'))
@@ -259,7 +259,7 @@ def update_cart(item_id):
 @app.route("/remove-from-cart/<int:item_id>")
 @login_required
 def remove_from_cart(item_id):
-    item = CartItem.query.get_or_404(item_id)
+    item = db.get_or_404(CartItem, item_id)
     if item.user_id != current_user.id:
         flash("Unauthorized", "danger")
         return redirect(url_for('cart'))
@@ -339,7 +339,7 @@ def place_order():
 @app.route("/order-success/<int:order_id>")
 @login_required
 def order_success(order_id):
-    order = Order.query.get_or_404(order_id)
+    order = db.get_or_404(Order, order_id)
     if order.user_id != current_user.id:
         return redirect(url_for('home'))
     return render_template("order_success.html", order=order)
@@ -355,7 +355,7 @@ def my_orders():
 @app.route("/order/<int:order_id>")
 @login_required
 def order_detail(order_id):
-    order = Order.query.get_or_404(order_id)
+    order = db.get_or_404(Order, order_id)
     if order.user_id != current_user.id and not getattr(current_user, 'is_admin', False):
         flash("Unauthorized", "danger")
         return redirect(url_for('home'))
@@ -365,7 +365,7 @@ def order_detail(order_id):
 @app.route("/cancel-order/<int:order_id>")
 @login_required
 def cancel_order(order_id):
-    order = Order.query.get_or_404(order_id)
+    order = db.get_or_404(Order, order_id)
     if order.user_id != current_user.id:
         flash("Unauthorized", "danger")
         return redirect(url_for('my_orders'))
@@ -426,7 +426,7 @@ def admin_orders():
 @login_required
 @admin_required
 def admin_update_order(order_id):
-    order = Order.query.get_or_404(order_id)
+    order = db.get_or_404(Order, order_id)
     new_status = request.form.get('status')
     valid = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled']
     if new_status in valid:
@@ -467,7 +467,7 @@ def add_product():
 @login_required
 @admin_required
 def edit_product(product_id):
-    product = Product.query.get_or_404(product_id)
+    product = db.get_or_404(Product, product_id)
     if request.method == "POST":
         product.name = request.form["name"]
         product.description = request.form["description"]
@@ -485,7 +485,7 @@ def edit_product(product_id):
 @login_required
 @admin_required
 def delete_product(product_id):
-    product = Product.query.get_or_404(product_id)
+    product = db.get_or_404(Product, product_id)
     db.session.delete(product)
     db.session.commit()
     flash("Product deleted.", "warning")
