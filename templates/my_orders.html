@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="ms-section" style="padding-top:30px;">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+                <h2 class="ms-section-title" style="text-align:left;">My Orders</h2>
+                <p class="ms-section-subtitle">Track, manage & review all your purchases</p>
+            </div>
+            <a href="{{ url_for('shop') }}" class="ms-btn ms-btn-gold">🛒 Continue Shopping</a>
+        </div>
+
+        {% set order_fallbacks = [
+            'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100&q=80',
+            'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100&q=80',
+            'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=100&q=80',
+            'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=100&q=80'
+        ] %}
+
+        {% if orders %}
+            {% for order in orders %}
+            <div class="ms-order-card">
+                <div class="ms-order-header">
+                    <div>
+                        <span class="ms-order-id">Order #{{ order.id }}</span>
+                        <span class="ms-order-date" style="display:block;margin-top:4px;">
+                            📅 {{ order.created_at.strftime('%d %B %Y, %I:%M %p') if order.created_at else 'N/A' }}
+                        </span>
+                    </div>
+                    <div class="d-flex gap-2 align-items-center flex-wrap">
+                        <span class="ms-status ms-status-{{ order.status|lower }}">
+                            {% if order.status == 'Pending' %}⏳{% elif order.status == 'Processing' %}⚙️{% elif order.status == 'Shipped' %}🚚{% elif order.status == 'Delivered' %}✅{% elif order.status == 'Cancelled' %}❌{% endif %}
+                            {{ order.status }}
+                        </span>
+                        <span class="ms-status ms-status-{{ 'paid' if order.payment_status == 'Paid' else 'unpaid' }}">
+                            {{ '💰 ' + order.payment_status }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="ms-order-items-preview">
+                    {% for item in order.items[:3] %}
+                    <div class="ms-order-item-mini">
+                        <img src="{{ item.product.image if item.product and item.product.image else order_fallbacks[loop.index0 % 4] }}" alt="">
+                        <div>
+                            <div style="font-weight:700;">{{ item.product.name if item.product else 'Product' }}</div>
+                            <div style="color:var(--text-light);font-size:12px;">×{{ item.quantity }} — ৳{{ "%.0f"|format(item.price * item.quantity) }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% if order.items|length > 3 %}
+                    <div class="ms-order-item-mini" style="background:var(--gold-light);">
+                        <span style="font-weight:700;color:var(--gold-dark);">+{{ order.items|length - 3 }} more items</span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="ms-order-footer">
+                    <div class="d-flex gap-3 align-items-center flex-wrap">
+                        <span class="ms-order-total">৳{{ "%.0f"|format(order.total) }}</span>
+                        <span style="font-size:13px;color:var(--text-light);">via {{ order.payment_method }}</span>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="{{ url_for('order_detail', order_id=order.id) }}" class="ms-btn ms-btn-outline ms-btn-sm">View Details →</a>
+                        {% if order.status in ['Pending', 'Processing'] %}
+                        <a href="{{ url_for('cancel_order', order_id=order.id) }}" class="ms-btn ms-btn-danger ms-btn-sm" onclick="return confirm('Are you sure you want to cancel Order #{{ order.id }}?')">Cancel Order</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="ms-empty">
+                <div class="ms-empty-icon">📦</div>
+                <h3>No Orders Yet</h3>
+                <p>Once you place your first order, it will appear here with tracking details.</p>
+                <a href="{{ url_for('shop') }}" class="ms-btn ms-btn-gold ms-btn-lg">Start Shopping →</a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

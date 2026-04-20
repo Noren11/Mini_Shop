@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="ms-auth-page">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="ms-auth-card">
+                    <div class="row g-0">
+                        <div class="col-lg-6">
+                            <div class="ms-auth-left">
+                                <h2 class="ms-auth-title">Welcome Back ✨</h2>
+                                <p class="ms-auth-subtitle">Sign in to access your account, track orders & continue shopping</p>
+
+                                <form method="POST">
+                                    <div class="ms-form-group">
+                                        <label class="ms-label">Email Address</label>
+                                        <input type="email" name="email" class="ms-input" placeholder="you@example.com" required>
+                                    </div>
+
+                                    <div class="ms-form-group">
+                                        <label class="ms-label">Password</label>
+                                        <input type="password" name="password" class="ms-input" placeholder="Enter your password" required>
+                                    </div>
+
+                                    <button type="submit" class="ms-btn ms-btn-gold ms-btn-lg ms-btn-block">Sign In →</button>
+                                </form>
+
+                                <p class="text-center mt-4" style="font-size:14px;color:var(--text-muted);">
+                                    Don't have an account? <a href="{{ url_for('register') }}" style="color:var(--gold-dark);font-weight:700;">Create one for free</a>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="ms-auth-right">
+                                <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=500&q=80" alt="Luxury Shopping Store" style="border-radius:20px;max-height:220px;object-fit:cover;width:100%;">
+                                <p class="ms-auth-quote mt-4">
+                                    "Style is a way to say who you are without having to speak."
+                                </p>
+                                <p style="font-size:13px;color:var(--text-muted);margin-top:8px;">— Rachel Zoe</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="ms-section" style="padding-top:30px;">
+    <div class="container">
+        <div class="mb-4">
+            <h2 class="ms-section-title" style="text-align:left;">Secure Checkout</h2>
+            <p class="ms-section-subtitle">You're just one step away from your order ✨</p>
+        </div>
+
+        {% set checkout_fallbacks = [
+            'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100&q=80',
+            'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100&q=80',
+            'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=100&q=80',
+            'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=100&q=80'
+        ] %}
+
+        <form method="POST" action="{{ url_for('place_order') }}">
+            <div class="row g-4">
+                <div class="col-lg-7">
+                    <div class="ms-checkout-card">
+                        <h4 style="font-weight:800;margin-bottom:24px;">📍 Delivery Information</h4>
+
+                        <div class="ms-form-group">
+                            <label class="ms-label">Full Name</label>
+                            <input type="text" class="ms-input" value="{{ current_user.name }}" readonly style="background:var(--cream-dark);">
+                        </div>
+
+                        <div class="ms-form-group">
+                            <label class="ms-label">Phone Number</label>
+                            <input type="text" name="phone" class="ms-input" placeholder="e.g. 01XXXXXXXXX" required>
+                        </div>
+
+                        <div class="ms-form-group">
+                            <label class="ms-label">Delivery Address</label>
+                            <textarea name="address" class="ms-input ms-textarea" placeholder="House, Road, Area, City — be as specific as possible for smooth delivery" required></textarea>
+                        </div>
+
+                        <h4 style="font-weight:800;margin:28px 0 18px;">💳 Choose Payment Method</h4>
+
+                        <div class="ms-payment-options">
+                            <label class="ms-payment-card selected" id="cod-card">
+                                <input type="radio" name="payment_method" value="Cash on Delivery" checked style="display:none;" onchange="selectPayment('cod-card')">
+                                <div class="ms-payment-icon">💵</div>
+                                <div class="ms-payment-name">Cash on<br>Delivery</div>
+                            </label>
+
+                            <label class="ms-payment-card" id="online-card">
+                                <input type="radio" name="payment_method" value="Online Payment" style="display:none;" onchange="selectPayment('online-card')">
+                                <div class="ms-payment-icon">💳</div>
+                                <div class="ms-payment-name">Credit /<br>Debit Card</div>
+                            </label>
+
+                            <label class="ms-payment-card" id="bkash-card">
+                                <input type="radio" name="payment_method" value="bKash" style="display:none;" onchange="selectPayment('bkash-card')">
+                                <div class="ms-payment-icon">📱</div>
+                                <div class="ms-payment-name">bKash /<br>Nagad</div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-5">
+                    <div class="ms-summary-card">
+                        <h4 class="ms-summary-title">Your Order</h4>
+
+                        {% for item in items %}
+                        <div class="d-flex align-items-center gap-3 mb-3" style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.1);">
+                            <img src="{{ item.product.image if item.product.image else checkout_fallbacks[loop.index0 % 4] }}" style="width:50px;height:50px;border-radius:12px;object-fit:cover;">
+                            <div style="flex:1;">
+                                <div style="font-weight:600;font-size:14px;color:white;">{{ item.product.name }}</div>
+                                <div style="font-size:12px;color:rgba(255,255,255,0.5);">Qty: {{ item.quantity }} × ৳{{ "%.0f"|format(item.product.price) }}</div>
+                            </div>
+                            <div style="font-weight:700;color:var(--gold-light);">৳{{ "%.0f"|format(item.product.price * item.quantity) }}</div>
+                        </div>
+                        {% endfor %}
+
+                        <hr class="ms-summary-divider">
+
+                        <div class="ms-summary-row">
+                            <span>Subtotal</span>
+                            <strong>৳{{ "%.0f"|format(subtotal) }}</strong>
+                        </div>
+                        <div class="ms-summary-row">
+                            <span>Shipping</span>
+                            <strong>৳{{ shipping }}</strong>
+                        </div>
+
+                        <hr class="ms-summary-divider">
+
+                        <div class="ms-summary-total">
+                            <span>Total</span>
+                            <span>৳{{ "%.0f"|format(total) }}</span>
+                        </div>
+
+                        <button type="submit" class="ms-btn ms-btn-gold ms-btn-lg ms-btn-block mt-3">
+                            ✨ Place Order — ৳{{ "%.0f"|format(total) }}
+                        </button>
+
+                        <a href="{{ url_for('cart') }}" class="ms-btn ms-btn-outline ms-btn-block mt-2" style="color:rgba(255,255,255,0.7);border-color:rgba(255,255,255,0.2);">
+                            ← Back to Cart
+                        </a>
+
+                        <div class="mt-3 text-center" style="font-size:12px;color:rgba(255,255,255,0.4);">
+                            🔒 Your information is encrypted & secure
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+{% block scripts %}
+<script>
+    function selectPayment(id) {
+        document.querySelectorAll('.ms-payment-card').forEach(c => c.classList.remove('selected'));
+        document.getElementById(id).classList.add('selected');
+    }
+</script>
+{% endblock %}
+{% endblock %}

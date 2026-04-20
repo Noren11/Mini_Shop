@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="ms-section" style="padding-top:20px;">
+    <div class="container">
+        <div class="ms-form-hero mb-4">
+            <div class="row align-items-center g-4">
+                <div class="col-lg-8">
+                    <span class="ms-admin-badge" style="background:var(--cream-dark);color:var(--gold-dark);">+ Add Product</span>
+                    <h1 style="font-size:1.8rem;font-weight:800;color:var(--brown);">Create New Product</h1>
+                    <p style="color:var(--text-muted);font-size:15px;">Fill in the details to add a new product to your shop.</p>
+                </div>
+                <div class="col-lg-4">
+                    <div style="background:var(--white);border-radius:20px;padding:20px;box-shadow:var(--shadow-sm);">
+                        <h6 style="font-weight:800;margin-bottom:8px;font-size:14px;">💡 Tips</h6>
+                        <p style="font-size:13px;color:var(--text-muted);margin:0;">Use clear names, good image URLs, and accurate descriptions for best results.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="ms-form-card">
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                <h3 class="ms-table-title">Product Details</h3>
+                <a href="{{ url_for('dashboard') }}" class="ms-btn ms-btn-outline ms-btn-sm">← Dashboard</a>
+            </div>
+
+            <form method="POST">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <label class="ms-label">Product Name</label>
+                        <input type="text" name="name" class="ms-input" placeholder="Enter product name" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="ms-label">Category</label>
+                        <input type="text" name="category" class="ms-input" placeholder="e.g. Electronics" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="ms-label">Price (৳)</label>
+                        <input type="number" step="0.01" name="price" class="ms-input" placeholder="0.00" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="ms-label">Image URL</label>
+                        <input type="text" name="image" class="ms-input" placeholder="https://...">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="ms-label">Stock Quantity</label>
+                        <input type="number" name="stock" class="ms-input" placeholder="50" value="50">
+                    </div>
+                    <div class="col-12">
+                        <label class="ms-label">Description</label>
+                        <textarea name="description" class="ms-input ms-textarea" placeholder="Write product description..." required></textarea>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-3 mt-4 flex-wrap">
+                    <button type="submit" class="ms-btn ms-btn-gold ms-btn-lg">+ Add Product</button>
+                    <a href="{{ url_for('dashboard') }}" class="ms-btn ms-btn-outline ms-btn-lg">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="ms-section" style="padding-top:20px;">
+    <div class="container">
+        <!-- Admin Hero -->
+        <div class="ms-admin-hero mb-4">
+            <div class="row align-items-center g-4">
+                <div class="col-lg-8">
+                    <span class="ms-admin-badge">⚙️ Admin Control Center</span>
+                    <h1 class="ms-admin-hero-title">Welcome, {{ current_user.name }}!</h1>
+                    <p class="ms-admin-hero-text">
+                        Your store at a glance — track performance, manage inventory, and keep customers happy.
+                    </p>
+                    <div class="d-flex gap-2 mt-3 flex-wrap">
+                        <a href="{{ url_for('add_product') }}" class="ms-btn ms-btn-gold">+ Add Product</a>
+                        <a href="{{ url_for('admin_orders') }}" class="ms-btn ms-btn-outline" style="color:rgba(255,255,255,0.8);border-color:rgba(255,255,255,0.25);">📋 View Orders</a>
+                        <a href="{{ url_for('customers') }}" class="ms-btn ms-btn-outline" style="color:rgba(255,255,255,0.8);border-color:rgba(255,255,255,0.25);">👥 Customers</a>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div style="background:rgba(255,255,255,0.08);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:24px;text-align:center;">
+                        <div style="font-size:36px;margin-bottom:8px;">💰</div>
+                        <div style="font-size:2rem;font-weight:900;color:var(--gold-light);">৳{{ "%.0f"|format(total_revenue) }}</div>
+                        <div style="font-size:13px;color:rgba(255,255,255,0.5);">Lifetime Revenue</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stat Cards -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-3 col-6">
+                <div class="ms-stat-card">
+                    <div class="ms-stat-icon" style="background:linear-gradient(135deg,#e8d5b7,#c9a96e);">📦</div>
+                    <div>
+                        <p class="ms-stat-label">Products</p>
+                        <h3 class="ms-stat-value">{{ products|length }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="ms-stat-card">
+                    <div class="ms-stat-icon" style="background:linear-gradient(135deg,#d4efdf,#2ecc71);">📋</div>
+                    <div>
+                        <p class="ms-stat-label">Total Orders</p>
+                        <h3 class="ms-stat-value">{{ orders|length }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="ms-stat-card">
+                    <div class="ms-stat-icon" style="background:linear-gradient(135deg,#fef5e7,#f39c12);">⏳</div>
+                    <div>
+                        <p class="ms-stat-label">Pending</p>
+                        <h3 class="ms-stat-value">{{ pending_orders }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <a href="{{ url_for('customers') }}" style="text-decoration:none;">
+                    <div class="ms-stat-card">
+                        <div class="ms-stat-icon" style="background:linear-gradient(135deg,#d6eaf8,#3498db);">👥</div>
+                        <div>
+                            <p class="ms-stat-label">Customers</p>
+                            <h3 class="ms-stat-value">{{ users|length }}</h3>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Products Table -->
+        <div class="ms-table-card">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+                <div>
+                    <h3 class="ms-table-title">Product Inventory</h3>
+                    <p style="color:var(--text-muted);font-size:14px;margin:0;">View, edit & manage your entire catalog</p>
+                </div>
+                <a href="{{ url_for('add_product') }}" class="ms-btn ms-btn-gold ms-btn-sm">+ Add Product</a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="ms-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Product</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% set dash_fallbacks = [
+                            'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100&q=80',
+                            'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100&q=80',
+                            'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=100&q=80',
+                            'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=100&q=80',
+                            'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=100&q=80'
+                        ] %}
+                        {% for product in products %}
+                        <tr>
+                            <td><span class="ms-table-id">#{{ product.id }}</span></td>
+                            <td>
+                                <div class="ms-table-product-info">
+                                    <img src="{{ product.image if product.image else dash_fallbacks[loop.index0 % 5] }}" class="ms-table-product-img" alt="">
+                                    <div>
+                                        <div style="font-weight:700;">{{ product.name }}</div>
+                                        <div style="font-size:12px;color:var(--text-light);">{{ product.description[:40] }}...</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span style="background:var(--cream-dark);padding:4px 12px;border-radius:8px;font-size:12px;font-weight:700;color:var(--gold-dark);">{{ product.category }}</span></td>
+                            <td style="font-weight:700;color:var(--gold-dark);">৳{{ "%.0f"|format(product.price) }}</td>
+                            <td>{{ product.stock if product.stock else 'N/A' }}</td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <a href="{{ url_for('product_details', product_id=product.id) }}" class="ms-btn ms-btn-outline ms-btn-sm">View</a>
+                                    <a href="{{ url_for('edit_product', product_id=product.id) }}" class="ms-btn ms-btn-outline ms-btn-sm" style="border-color:var(--warning);color:var(--warning);">Edit</a>
+                                    <a href="{{ url_for('delete_product', product_id=product.id) }}" class="ms-btn ms-btn-danger ms-btn-sm" onclick="return confirm('Delete this product?')">Delete</a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6">
+                                <div class="ms-empty" style="border:none;">
+                                    <div class="ms-empty-icon">📦</div>
+                                    <h3>No Products</h3>
+                                    <p>Add your first product to get started.</p>
+                                    <a href="{{ url_for('add_product') }}" class="ms-btn ms-btn-gold">Add Product</a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="ms-section" style="padding-top:30px;">
+    <div class="container">
+        <div class="row g-4">
+            <!-- Sidebar -->
+            <div class="col-lg-3">
+                <div class="ms-shop-sidebar">
+                    <form method="GET" action="{{ url_for('shop') }}">
+                        <div class="ms-search-box">
+                            <span>🔍</span>
+                            <input type="text" name="q" placeholder="Search products..." value="{{ search }}">
+                        </div>
+
+                        <h6 class="ms-sidebar-title">Categories</h6>
+                        <ul class="ms-cat-list">
+                            <li>
+                                <a href="{{ url_for('shop') }}" class="{{ 'active' if not selected_category }}">
+                                    All Products
+                                </a>
+                            </li>
+                            {% for cat in categories %}
+                            <li>
+                                <a href="{{ url_for('shop', category=cat) }}" class="{{ 'active' if selected_category == cat }}">
+                                    {{ cat }}
+                                </a>
+                            </li>
+                            {% endfor %}
+                        </ul>
+
+                        <h6 class="ms-sidebar-title mt-4">Sort By</h6>
+                        <select name="sort" class="ms-input" onchange="this.form.submit()" style="padding:10px 14px;">
+                            <option value="newest" {{ 'selected' if sort=='newest' }}>Newest First</option>
+                            <option value="price_low" {{ 'selected' if sort=='price_low' }}>Price: Low → High</option>
+                            <option value="price_high" {{ 'selected' if sort=='price_high' }}>Price: High → Low</option>
+                            <option value="name" {{ 'selected' if sort=='name' }}>Name: A → Z</option>
+                        </select>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Products Grid -->
+            <div class="col-lg-9">
+                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                    <div>
+                        <h2 class="ms-section-title mb-1" style="text-align:left;">
+                            {% if selected_category %}{{ selected_category }}{% elif search %}Results for "{{ search }}"{% else %}Our Collection{% endif %}
+                        </h2>
+                        <p class="ms-section-subtitle mb-0">Showing {{ products|length }} product{{ 's' if products|length != 1 }}</p>
+                    </div>
+                </div>
+
+                {% set fallback_images = [
+                    'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&q=80',
+                    'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80',
+                    'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&q=80',
+                    'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=500&q=80',
+                    'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=500&q=80',
+                    'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=500&q=80',
+                    'https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=500&q=80',
+                    'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500&q=80',
+                    'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=500&q=80'
+                ] %}
+
+                <div class="row g-4">
+                    {% for product in products %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="ms-product-card">
+                            <div class="ms-product-img-wrap">
+                                <img src="{{ product.image if product.image else fallback_images[loop.index0 % 9] }}" alt="{{ product.name }}">
+                                <span class="ms-product-cat-tag">{{ product.category }}</span>
+                                {% if current_user.is_authenticated %}
+                                <div class="ms-quick-add">
+                                    <button class="ms-btn ms-btn-gold ms-btn-sm" onclick="addToCart({{ product.id }}, this)">🛒 Add to Cart</button>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="ms-product-body">
+                                <h5 class="ms-product-name">{{ product.name }}</h5>
+                                <p class="ms-product-desc">{{ product.description[:80] }}...</p>
+                                <div class="ms-product-footer">
+                                    <div class="ms-product-price">
+                                        ৳{{ "%.0f"|format(product.price) }} <small>BDT</small>
+                                    </div>
+                                    <a href="{{ url_for('product_details', product_id=product.id) }}" class="ms-view-btn" title="View Details">→</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="col-12">
+                        <div class="ms-empty">
+                            <div class="ms-empty-icon">🔍</div>
+                            <h3>No Products Found</h3>
+                            <p>Try adjusting your search or explore a different category.</p>
+                            <a href="{{ url_for('shop') }}" class="ms-btn ms-btn-gold">Browse All Products</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

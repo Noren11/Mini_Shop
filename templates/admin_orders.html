@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="ms-section" style="padding-top:20px;">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+                <h2 class="ms-section-title" style="text-align:left;">Order Management</h2>
+                <p class="ms-section-subtitle">Review, update & manage all incoming orders</p>
+            </div>
+            <a href="{{ url_for('dashboard') }}" class="ms-btn ms-btn-outline">← Dashboard</a>
+        </div>
+
+        <!-- Filters -->
+        <div class="ms-filter-bar">
+            <span style="font-weight:700;font-size:13px;color:var(--text-muted);margin-right:8px;">Status:</span>
+            <a href="{{ url_for('admin_orders') }}" class="ms-filter-btn {{ 'active' if not selected_status }}">📋 All</a>
+            <a href="{{ url_for('admin_orders', status='Pending') }}" class="ms-filter-btn {{ 'active' if selected_status=='Pending' }}">⏳ Pending</a>
+            <a href="{{ url_for('admin_orders', status='Processing') }}" class="ms-filter-btn {{ 'active' if selected_status=='Processing' }}">⚙️ Processing</a>
+            <a href="{{ url_for('admin_orders', status='Shipped') }}" class="ms-filter-btn {{ 'active' if selected_status=='Shipped' }}">🚚 Shipped</a>
+            <a href="{{ url_for('admin_orders', status='Delivered') }}" class="ms-filter-btn {{ 'active' if selected_status=='Delivered' }}">✅ Delivered</a>
+            <a href="{{ url_for('admin_orders', status='Cancelled') }}" class="ms-filter-btn {{ 'active' if selected_status=='Cancelled' }}">❌ Cancelled</a>
+        </div>
+
+        {% set admin_fallbacks = [
+            'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=60&q=80',
+            'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=60&q=80',
+            'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=60&q=80'
+        ] %}
+
+        {% if orders %}
+        <div class="ms-table-card">
+            <div class="table-responsive">
+                <table class="ms-table">
+                    <thead>
+                        <tr>
+                            <th>Order</th>
+                            <th>Customer</th>
+                            <th>Items</th>
+                            <th>Total</th>
+                            <th>Payment</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <td>
+                                <a href="{{ url_for('order_detail', order_id=order.id) }}" style="text-decoration:none;">
+                                    <span class="ms-table-id">#{{ order.id }}</span>
+                                </a>
+                                <div style="font-size:11px;color:var(--text-light);margin-top:4px;">{{ order.created_at.strftime('%d %b %Y') if order.created_at else '' }}</div>
+                            </td>
+                            <td>
+                                <div style="font-weight:700;">{{ order.user.name if order.user else 'N/A' }}</div>
+                                <div style="font-size:12px;color:var(--text-light);">{{ order.user.email if order.user else '' }}</div>
+                            </td>
+                            <td>
+                                <div class="d-flex gap-1 flex-wrap">
+                                    {% for item in order.items[:2] %}
+                                    <img src="{{ item.product.image if item.product and item.product.image else admin_fallbacks[loop.index0 % 3] }}" style="width:32px;height:32px;border-radius:8px;object-fit:cover;" title="{{ item.product.name if item.product else '' }} ×{{ item.quantity }}">
+                                    {% endfor %}
+                                    {% if order.items|length > 2 %}
+                                    <span style="width:32px;height:32px;border-radius:8px;background:var(--cream-dark);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;color:var(--gold-dark);">+{{ order.items|length - 2 }}</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td style="font-weight:800;color:var(--gold-dark);">৳{{ "%.0f"|format(order.total) }}</td>
+                            <td>
+                                <span class="ms-status ms-status-{{ 'paid' if order.payment_status == 'Paid' else 'unpaid' }}" style="font-size:10px;">{{ order.payment_status }}</span>
+                                <div style="font-size:11px;color:var(--text-light);margin-top:2px;">{{ order.payment_method }}</div>
+                            </td>
+                            <td>
+                                <span class="ms-status ms-status-{{ order.status|lower }}">{{ order.status }}</span>
+                            </td>
+                            <td>
+                                {% if order.status != 'Cancelled' and order.status != 'Delivered' %}
+                                <form method="POST" action="{{ url_for('admin_update_order', order_id=order.id) }}" class="d-flex gap-2">
+                                    <select name="status" class="ms-status-select">
+                                        {% for s in ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'] %}
+                                        <option value="{{ s }}" {{ 'selected' if order.status == s }}>{{ s }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <button type="submit" class="ms-btn ms-btn-gold ms-btn-sm">Update</button>
+                                </form>
+                                {% else %}
+                                <span style="font-size:13px;color:var(--text-light);">—</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% else %}
+        <div class="ms-empty">
+            <div class="ms-empty-icon">📋</div>
+            <h3>No Orders Found</h3>
+            <p>{% if selected_status %}No {{ selected_status|lower }} orders at the moment.{% else %}Orders will appear here when customers start placing them.{% endif %}</p>
+            {% if selected_status %}
+            <a href="{{ url_for('admin_orders') }}" class="ms-btn ms-btn-gold">View All Orders</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="ms-section" style="padding-top:30px;">
+    <div class="container">
+        {% set fallback = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&q=80' %}
+        <div class="row g-4">
+            <div class="col-lg-5">
+                <div class="ms-pd-image">
+                    <img src="{{ product.image if product.image else fallback }}" alt="{{ product.name }}">
+                </div>
+            </div>
+
+            <div class="col-lg-7">
+                <div class="ms-pd-info">
+                    <span class="ms-pd-cat">{{ product.category }}</span>
+                    <h1 class="ms-pd-title">{{ product.name }}</h1>
+                    <div class="ms-pd-price">৳{{ "%.0f"|format(product.price) }} <small style="font-size:14px;font-family:'Inter',sans-serif;color:var(--text-light);font-weight:400;">BDT</small></div>
+
+                    <div class="ms-pd-meta">
+                        <div class="ms-pd-meta-item">
+                            <span>📦</span>
+                            <span>In Stock: {{ product.stock if product.stock else 'Available' }}</span>
+                        </div>
+                        <div class="ms-pd-meta-item">
+                            <span>🚚</span>
+                            <span>Free Shipping over ৳1000</span>
+                        </div>
+                        <div class="ms-pd-meta-item">
+                            <span>✅</span>
+                            <span>Authenticity Guaranteed</span>
+                        </div>
+                        <div class="ms-pd-meta-item">
+                            <span>🔄</span>
+                            <span>7-Day Easy Returns</span>
+                        </div>
+                    </div>
+
+                    <p class="ms-pd-desc">{{ product.description }}</p>
+
+                    <div class="d-flex gap-3 flex-wrap">
+                        {% if current_user.is_authenticated %}
+                            <button class="ms-btn ms-btn-gold ms-btn-lg" onclick="addToCart({{ product.id }}, this)">🛒 Add to Cart</button>
+                            <a href="{{ url_for('cart') }}" class="ms-btn ms-btn-outline ms-btn-lg">View Cart →</a>
+                        {% else %}
+                            <a href="{{ url_for('login') }}" class="ms-btn ms-btn-gold ms-btn-lg">Sign In to Purchase</a>
+                        {% endif %}
+
+                        {% if current_user.is_authenticated and current_user.is_admin %}
+                            <a href="{{ url_for('edit_product', product_id=product.id) }}" class="ms-btn ms-btn-outline ms-btn-sm">✏️ Edit</a>
+                            <a href="{{ url_for('delete_product', product_id=product.id) }}" class="ms-btn ms-btn-danger ms-btn-sm" onclick="return confirm('Delete this product permanently?')">🗑️ Delete</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if related %}
+        <div class="mt-5">
+            <h3 class="ms-section-title" style="text-align:left;font-size:1.5rem;">You May Also Like</h3>
+            <p class="ms-section-subtitle" style="text-align:left;">Similar products in {{ product.category }}</p>
+
+            {% set related_fallbacks = [
+                'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&q=80',
+                'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80',
+                'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=400&q=80',
+                'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400&q=80'
+            ] %}
+
+            <div class="row g-4 mt-2">
+                {% for p in related %}
+                <div class="col-md-6 col-lg-3">
+                    <div class="ms-product-card">
+                        <div class="ms-product-img-wrap" style="height:180px;">
+                            <img src="{{ p.image if p.image else related_fallbacks[loop.index0 % 4] }}" alt="{{ p.name }}">
+                            <span class="ms-product-cat-tag">{{ p.category }}</span>
+                        </div>
+                        <div class="ms-product-body">
+                            <h5 class="ms-product-name">{{ p.name }}</h5>
+                            <div class="ms-product-footer">
+                                <div class="ms-product-price">৳{{ "%.0f"|format(p.price) }}</div>
+                                <a href="{{ url_for('product_details', product_id=p.id) }}" class="ms-view-btn">→</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

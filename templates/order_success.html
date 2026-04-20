@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="ms-success-page" style="padding-top:40px;">
+    <div class="ms-success-icon">✓</div>
+    <h2 class="ms-success-title">Thank You for Your Order! 🎉</h2>
+    <p class="ms-success-text">
+        Your order <strong>#{{ order.id }}</strong> has been placed successfully!
+        We're already preparing it with care. You'll receive updates as it progresses.
+    </p>
+
+    {% set success_fallbacks = [
+        'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100&q=80',
+        'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100&q=80',
+        'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=100&q=80'
+    ] %}
+
+    <div class="ms-success-order-card">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 style="font-weight:800;margin:0;">Order #{{ order.id }}</h5>
+            <span class="ms-status ms-status-pending">{{ order.status }}</span>
+        </div>
+
+        {% for item in order.items %}
+        <div class="d-flex align-items-center gap-3 mb-2" style="background:var(--cream);border-radius:14px;padding:12px 16px;">
+            <img src="{{ item.product.image if item.product and item.product.image else success_fallbacks[loop.index0 % 3] }}" style="width:45px;height:45px;border-radius:12px;object-fit:cover;">
+            <div style="flex:1;">
+                <div style="font-weight:700;font-size:14px;">{{ item.product.name if item.product else 'Product' }}</div>
+                <div style="font-size:12px;color:var(--text-muted);">Qty: {{ item.quantity }} × ৳{{ "%.0f"|format(item.price) }}</div>
+            </div>
+            <div style="font-weight:800;color:var(--gold-dark);">৳{{ "%.0f"|format(item.price * item.quantity) }}</div>
+        </div>
+        {% endfor %}
+
+        <hr style="border-color:var(--border);">
+        <div class="d-flex justify-content-between">
+            <span style="color:var(--text-muted);font-weight:600;">Total Paid</span>
+            <span style="font-family:'Playfair Display',serif;font-weight:800;font-size:1.3rem;color:var(--gold-dark);">৳{{ "%.0f"|format(order.total) }}</span>
+        </div>
+
+        <div class="mt-3" style="font-size:13px;color:var(--text-muted);line-height:1.8;">
+            <div>📍 <strong>Delivery:</strong> {{ order.address }}</div>
+            <div>📱 <strong>Phone:</strong> {{ order.phone }}</div>
+            <div>💳 <strong>Payment:</strong> {{ order.payment_method }} ({{ order.payment_status }})</div>
+        </div>
+    </div>
+
+    <div class="d-flex gap-3 justify-content-center flex-wrap">
+        <a href="{{ url_for('my_orders') }}" class="ms-btn ms-btn-gold ms-btn-lg">📦 Track My Orders</a>
+        <a href="{{ url_for('shop') }}" class="ms-btn ms-btn-outline ms-btn-lg">Keep Shopping →</a>
+    </div>
+</div>
+
+<!-- Confetti Animation -->
+<script>
+    const colors = ['#c9a96e','#e74c3c','#3498db','#2ecc71','#f39c12','#9b59b6','#e67e22','#1abc9c'];
+    for (let i = 0; i < 60; i++) {
+        const piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        piece.style.left = Math.random() * 100 + 'vw';
+        piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.animationDelay = Math.random() * 2 + 's';
+        piece.style.animationDuration = (2 + Math.random() * 2) + 's';
+        piece.style.width = (6 + Math.random() * 10) + 'px';
+        piece.style.height = (6 + Math.random() * 10) + 'px';
+        piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+        document.body.appendChild(piece);
+        setTimeout(() => piece.remove(), 5000);
+    }
+</script>
+{% endblock %}

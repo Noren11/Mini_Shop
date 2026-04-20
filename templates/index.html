@@ -1,0 +1,290 @@
+{% extends "base.html" %}
+{% block content %}
+<!-- Hero Section with Image Slideshow -->
+<section class="ms-hero">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6 ms-hero-content">
+                <span class="ms-hero-badge">✨ Curated Collections — New Arrivals</span>
+
+                <!-- Animated Rotating Text -->
+                <h1 class="ms-hero-title">
+                    <span class="ms-hero-static">Discover</span><br>
+                    <span class="ms-hero-rotate-wrap">
+                        <span class="ms-hero-rotate" id="heroRotateText">
+                            <span class="ms-rotate-item active">Premium Gadgets</span>
+                            <span class="ms-rotate-item">Trendy Fashion</span>
+                            <span class="ms-rotate-item">Smart Accessories</span>
+                            <span class="ms-rotate-item">Elegant Watches</span>
+                        </span>
+                    </span>
+                </h1>
+
+                <p class="ms-hero-text" id="heroSubtext">
+                    From timeless accessories to cutting-edge gadgets — explore a world of premium,
+                    handpicked products designed to complement your lifestyle.
+                </p>
+
+                <div class="d-flex gap-3 flex-wrap">
+                    <a href="{{ url_for('shop') }}" class="ms-btn ms-btn-gold ms-btn-lg">🛒 Explore Collection</a>
+                    {% if not current_user.is_authenticated %}
+                        <a href="{{ url_for('register') }}" class="ms-btn ms-btn-outline ms-btn-lg">Join Us Free →</a>
+                    {% endif %}
+                </div>
+
+                <div class="d-flex gap-4 mt-4 flex-wrap" style="font-size:13px;color:var(--text-muted);">
+                    <span>🚚 Free Shipping 1000৳+</span>
+                    <span>🔄 Easy Returns</span>
+                    <span>🛡️ Secure Checkout</span>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <!-- Image Slideshow -->
+                <div class="ms-hero-slideshow" id="heroSlideshow">
+                    <div class="ms-slide active" style="background-image:url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=900&q=80');"></div>
+                    <div class="ms-slide" style="background-image:url('https://images.unsplash.com/photo-1483985988355-763728e1935b?w=900&q=80');"></div>
+                    <div class="ms-slide" style="background-image:url('https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=900&q=80');"></div>
+                    <div class="ms-slide" style="background-image:url('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=900&q=80');"></div>
+
+                    <!-- Single quote overlay with transition -->
+                    <div class="ms-hero-quote" id="heroQuote">
+                        ⚡ "Every item tells a story — find yours today."
+                    </div>
+
+                    <!-- Slide indicators -->
+                    <div class="ms-slide-dots">
+                        <span class="ms-dot active" data-slide="0"></span>
+                        <span class="ms-dot" data-slide="1"></span>
+                        <span class="ms-dot" data-slide="2"></span>
+                        <span class="ms-dot" data-slide="3"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Categories Section -->
+{% if categories %}
+<section class="ms-section">
+    <div class="container">
+        <div class="ms-section-header">
+            <h2 class="ms-section-title ms-reveal">Shop by Category</h2>
+            <p class="ms-section-subtitle ms-reveal">Find exactly what you're looking for</p>
+            <div class="ms-section-line"></div>
+        </div>
+        <div class="row g-4 justify-content-center">
+            {% set cat_icons = {'Electronics': '📱', 'Fashion': '👗', 'Accessories': '⌚', 'Home Items': '🏠', 'Books': '📚', 'Food': '🍕', 'Sports': '⚽', 'Beauty': '💄', 'Gadgets': '🎧', 'Lifestyle': '🌿'} %}
+            {% for cat in categories %}
+            <div class="col-lg-3 col-md-4 col-6 ms-reveal" style="animation-delay: {{ loop.index0 * 0.1 }}s;">
+                <a href="{{ url_for('shop', category=cat) }}" style="text-decoration:none;">
+                    <div class="ms-cat-card">
+                        <div class="ms-cat-icon">{{ cat_icons.get(cat, '📦') }}</div>
+                        <h5>{{ cat }}</h5>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Featured Products -->
+<section class="ms-section" style="background: var(--cream-dark); padding: 60px 0;">
+    <div class="container">
+        <div class="ms-section-header">
+            <h2 class="ms-section-title ms-reveal">Trending Now</h2>
+            <p class="ms-section-subtitle ms-reveal">Handpicked favorites our customers love</p>
+            <div class="ms-section-line"></div>
+        </div>
+
+        {% set fallback_images = [
+            'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&q=80',
+            'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80',
+            'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&q=80',
+            'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=500&q=80',
+            'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=500&q=80',
+            'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=500&q=80'
+        ] %}
+
+        <div class="row g-4">
+            {% for product in products %}
+            <div class="col-lg-4 col-md-6 ms-reveal" style="animation-delay: {{ loop.index0 * 0.12 }}s;">
+                <div class="ms-product-card">
+                    <div class="ms-product-img-wrap">
+                        <img src="{{ product.image if product.image else fallback_images[loop.index0 % 6] }}" alt="{{ product.name }}">
+                        <span class="ms-product-cat-tag">{{ product.category }}</span>
+                        {% if current_user.is_authenticated %}
+                        <div class="ms-quick-add">
+                            <button class="ms-btn ms-btn-gold ms-btn-sm" onclick="addToCart({{ product.id }}, this)">🛒 Add to Cart</button>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="ms-product-body">
+                        <h5 class="ms-product-name">{{ product.name }}</h5>
+                        <p class="ms-product-desc">{{ product.description[:80] }}...</p>
+                        <div class="ms-product-footer">
+                            <div class="ms-product-price">৳{{ "%.0f"|format(product.price) }} <small>BDT</small></div>
+                            <a href="{{ url_for('product_details', product_id=product.id) }}" class="ms-view-btn" title="View Details">→</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-12">
+                <div class="ms-empty">
+                    <div class="ms-empty-icon">🛍️</div>
+                    <h3>Coming Soon</h3>
+                    <p>We're curating the best products for you. Check back shortly!</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if products %}
+        <div class="text-center mt-5">
+            <a href="{{ url_for('shop') }}" class="ms-btn ms-btn-dark ms-btn-lg">Explore Full Collection →</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Why Choose Us -->
+<section class="ms-section" style="padding: 60px 0;">
+    <div class="container">
+        <div class="ms-section-header">
+            <h2 class="ms-section-title ms-reveal">Why Shop With Us</h2>
+            <p class="ms-section-subtitle ms-reveal">We go above and beyond for our customers</p>
+            <div class="ms-section-line"></div>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-3 col-6 ms-reveal" style="animation-delay:0s;">
+                <div class="ms-cat-card">
+                    <div class="ms-cat-icon">🚚</div>
+                    <h5>Fast Delivery</h5>
+                    <p style="font-size:13px;color:var(--text-muted);margin:10px 0 0;line-height:1.6;">Nationwide shipping within 2-3 business days</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 ms-reveal" style="animation-delay:0.1s;">
+                <div class="ms-cat-card">
+                    <div class="ms-cat-icon">🛡️</div>
+                    <h5>Secure Payment</h5>
+                    <p style="font-size:13px;color:var(--text-muted);margin:10px 0 0;line-height:1.6;">100% safe transactions with encryption</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 ms-reveal" style="animation-delay:0.2s;">
+                <div class="ms-cat-card">
+                    <div class="ms-cat-icon">🔄</div>
+                    <h5>Easy Returns</h5>
+                    <p style="font-size:13px;color:var(--text-muted);margin:10px 0 0;line-height:1.6;">7-day hassle-free return policy</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 ms-reveal" style="animation-delay:0.3s;">
+                <div class="ms-cat-card">
+                    <div class="ms-cat-icon">💬</div>
+                    <h5>24/7 Support</h5>
+                    <p style="font-size:13px;color:var(--text-muted);margin:10px 0 0;line-height:1.6;">Always here to help, anytime you need</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% block scripts %}
+<script>
+    // ====== Hero Slideshow with Smooth Transitions ======
+    const slides = document.querySelectorAll('.ms-slide');
+    const dots = document.querySelectorAll('.ms-dot');
+    const rotateItems = document.querySelectorAll('.ms-rotate-item');
+    const quoteEl = document.getElementById('heroQuote');
+    let currentSlide = 0;
+    let isAnimating = false;
+
+    const quotes = [
+        '⚡ "Every item tells a story — find yours today."',
+        '👗 "Fashion is the armor to survive reality."',
+        '🎁 "Here every click brings you closer to a perfect gift!"',
+        '✨ "Quality you can feel, prices you\'ll love."'
+    ];
+
+    const subtexts = [
+        "From timeless accessories to cutting-edge gadgets — explore a world of premium, handpicked products designed to complement your lifestyle.",
+        "Step into the latest trends. Our fashion collection features handpicked styles that make heads turn.",
+        "Elevate your everyday with smart, innovative accessories that blend form and function perfectly.",
+        "Timeless elegance on your wrist. Discover watches that make a statement without saying a word."
+    ];
+
+    function goToSlide(next) {
+        if (isAnimating || next === currentSlide) return;
+        isAnimating = true;
+
+        // Fade out current
+        slides[currentSlide].classList.remove('active');
+        dots[currentSlide].classList.remove('active');
+        if (rotateItems[currentSlide]) rotateItems[currentSlide].classList.remove('active');
+
+        // Animate quote out
+        quoteEl.style.opacity = '0';
+        quoteEl.style.transform = 'translateY(14px)';
+
+        // Animate subtext out
+        const subEl = document.getElementById('heroSubtext');
+        subEl.style.opacity = '0';
+        subEl.style.transform = 'translateY(12px)';
+
+        // After fade-out, switch content and fade in
+        setTimeout(() => {
+            currentSlide = next;
+
+            // Activate new slide
+            slides[currentSlide].classList.add('active');
+            dots[currentSlide].classList.add('active');
+            if (rotateItems[currentSlide]) rotateItems[currentSlide].classList.add('active');
+
+            // Update quote text and fade in
+            quoteEl.textContent = quotes[currentSlide];
+            quoteEl.style.opacity = '1';
+            quoteEl.style.transform = 'translateY(0)';
+
+            // Update subtext and fade in
+            subEl.textContent = subtexts[currentSlide];
+            subEl.style.opacity = '1';
+            subEl.style.transform = 'translateY(0)';
+
+            isAnimating = false;
+        }, 400);
+    }
+
+    function nextSlide() {
+        goToSlide((currentSlide + 1) % slides.length);
+    }
+
+    // Auto-play
+    let autoPlay = setInterval(nextSlide, 4500);
+
+    // Dot click navigation
+    dots.forEach(dot => {
+        dot.addEventListener('click', () => {
+            clearInterval(autoPlay);
+            goToSlide(parseInt(dot.dataset.slide));
+            autoPlay = setInterval(nextSlide, 4500);
+        });
+    });
+
+    // ====== Scroll Reveal Animation ======
+    const revealElements = document.querySelectorAll('.ms-reveal');
+    const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('revealed');
+                revealObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.15 });
+
+    revealElements.forEach(el => revealObserver.observe(el));
+</script>
+{% endblock %}
+{% endblock %}
